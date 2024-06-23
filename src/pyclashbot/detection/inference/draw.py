@@ -1,6 +1,7 @@
-import numpy as np
 from functools import lru_cache
+
 import cv2
+import numpy as np
 
 rng = np.random.default_rng(82)
 
@@ -28,7 +29,9 @@ def draw_bbox(
 
     cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
 
-    cv2.putText(image, label, (bbox[0], bbox[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+    cv2.putText(
+        image, label, (bbox[0] + 20, bbox[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2
+    )
 
 
 def draw_bboxes(
@@ -42,19 +45,16 @@ def draw_bboxes(
     height = image.shape[:2][0]
     width = image.shape[:2][1]
 
-    for bbox in pred:
-        label = int(bbox[4])
-        color = colors[label]
-        # scale each bbox to the original image size (size of image)
-        # x_center, y_center, width, height
-        copy = bbox.copy()
+    for row in pred:
+        label = np.argmax(row[5:])
+        color = colors[int(label)]
+
+        bbox = row[:4]
         bbox[0] = (bbox[0] / pred_dims[0]) * width
         bbox[1] = (bbox[1] / pred_dims[1]) * height
         bbox[2] = (bbox[2] / pred_dims[0]) * width
         bbox[3] = (bbox[3] / pred_dims[1]) * height
 
-        print(f"bbox: {bbox}, og: {copy}")
-
-        draw_bbox(image, bbox[:4], label, color)
+        draw_bbox(image, bbox, label, color)
 
     return image
