@@ -1,6 +1,11 @@
+import logging
+
+import cv2
 import numpy as np
 import onnxruntime as ort
-import cv2
+from onnx import ModelProto
+from onnxconverter_common.float16 import convert_float_to_float16
+from onnxmltools.utils import load_model
 
 
 class OnnxDetector:
@@ -11,10 +16,15 @@ class OnnxDetector:
             set(ort.get_available_providers())
             & {"CUDAExecutionProvider", "CPUExecutionProvider"}
         )
+        logging.info(f"Using providers: {providers}")
+
+        mdl_in = load_model(model_path)
+        mdl: ModelProto = convert_float_to_float16(mdl_in)
         self.sess = ort.InferenceSession(
-            self.model_path,
+            mdl.SerializeToString(),
             providers=providers,
         )
+
         self.output_name = self.sess.get_outputs()[0].name
 
         input_ = self.sess.get_inputs()[0]
