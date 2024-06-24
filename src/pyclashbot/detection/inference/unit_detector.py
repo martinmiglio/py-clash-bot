@@ -1,4 +1,3 @@
-import logging
 import numpy as np
 
 from pyclashbot.detection.inference.detector import OnnxDetector
@@ -16,13 +15,11 @@ class UnitDetector(OnnxDetector):
         if len(boxes) == 0:
             return boxes
 
-        init_len = len(boxes)
-
         # Unstacking Bounding Box Coordinates
-        x_min = boxes[:, 0]
-        y_min = boxes[:, 1]
-        x_max = boxes[:, 2] + x_min
-        y_max = boxes[:, 3] + y_min
+        x_min = boxes[:, 0] - boxes[:, 2] / 2
+        y_min = boxes[:, 1] - boxes[:, 3] / 2
+        x_max = boxes[:, 0] + boxes[:, 2] / 2
+        y_max = boxes[:, 1] + boxes[:, 3] / 2
 
         # Sorting the pscores in descending order and keeping respective indices.
         sorted_idx = np.argsort(boxes[:, 4])[::-1]
@@ -64,9 +61,10 @@ class UnitDetector(OnnxDetector):
         out = boxes[filtered]
         return out
 
-    def run(self, image):
-        pred = self._infer(image).astype(np.float32)[0]
+    def postprocess(self, pred: np.ndarray):
         pred = np.array(pred[pred[:, 4] > self.MIN_CONF])
-        # instad of filtering by confidence, use non-max suppression
         pred = self.non_max_suppression(pred, self.OVERLAP_MAX)
         return pred
+
+    def run(self, image):
+        return self._infer(image).astype(np.float32)[0]

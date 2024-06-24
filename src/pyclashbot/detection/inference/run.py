@@ -33,11 +33,14 @@ def detection(detector):
     pred = detector.run(image)
     durations["inference"] = (durations["preprocess"][1], perf_counter())
 
+    pred = detector.postprocess(pred)
+    durations["postprocess"] = (durations["inference"][1], perf_counter())
+
     image = draw_bboxes(ss, pred, pred_dims=(640, 640))
     cv2.imshow("Predictions", image)
     if cv2.waitKey(25) == 27:
         raise KeyboardInterrupt
-    durations["draw"] = (durations["inference"][1], perf_counter())
+    durations["draw"] = (durations["postprocess"][1], perf_counter())
 
     durations["total"] = (durations["screenshot"][0], durations["draw"][1])
     return {k: v[1] - v[0] for k, v in durations.items()}
@@ -48,7 +51,7 @@ def detection_loop(use_gpu):
     detector = UnitDetector(model_path, use_gpu)
     logging.info("Model loaded")
 
-    logging.info("Starting detection loop")
+    logging.info("Starting detection loop, ctrl+c to stop")
 
     durations = []
     while True:
