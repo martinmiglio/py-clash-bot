@@ -9,12 +9,12 @@ from onnxmltools.utils import load_model
 
 
 class OnnxDetector:
-    def __init__(self, model_path):
+    def __init__(self, model_path, use_gpu=False):
         self.model_path = model_path
 
         providers = list(
             set(ort.get_available_providers())
-            & {"CUDAExecutionProvider", "CPUExecutionProvider"}
+            & {"CUDAExecutionProvider" if use_gpu else None, "CPUExecutionProvider"}
         )
         logging.info(f"Using providers: {providers}")
 

@@ -32,6 +32,14 @@ onnxconverter-common = "^1.14.0"
 onnxmltools = "^1.12.0"
 
 
+[tool.poetry.group.gpu]
+optional = true
+
+
+[tool.poetry.group.gpu.dependencies]
+onnxruntime-gpu = { version = "^1.18.0", source = "ORT-CUDA-12" }
+
+
 [tool.poetry.group.build]
 optional = true
 
@@ -56,6 +64,11 @@ notebook = "^7.1.2"
 ipykernel = "^6.29.2"
 matplotlib = "^3.8.3"
 decorator = "^5.1.1"
+
+[[tool.poetry.source]]
+name = "ORT-CUDA-12"
+url = "https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/"
+priority = 'explicit'
 
 
 [tool.poe.tasks.build-dist]
