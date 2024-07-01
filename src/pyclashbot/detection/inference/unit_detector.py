@@ -5,9 +5,7 @@ from pyclashbot.detection.inference.detector import OnnxDetector
 
 class UnitDetector(OnnxDetector):
     MIN_CONF = 0.2
-    UNIT_Y_START = 0.05
-    UNIT_Y_END = 0.80
-    OVERLAP_MAX = 0.3
+    OVERLAP_MAX = 0.6
 
     def non_max_suppression(self, boxes: np.ndarray, overlap_threshold) -> np.ndarray:
         # overlap_threshold should be between 0 and 1, 1 means no overlap
